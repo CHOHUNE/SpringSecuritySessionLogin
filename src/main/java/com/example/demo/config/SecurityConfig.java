@@ -26,9 +26,8 @@ public class SecurityConfig {
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
 
         http
-                .authorizeHttpRequests((auth) ->
-                        auth
-                                .requestMatchers("/", "/login").permitAll()
+                .authorizeHttpRequests((auth) -> auth
+                                .requestMatchers("/", "/login", "/join", "/joinProc").permitAll()
                                 .requestMatchers("/admin").hasRole("ADMIN")
                                 .requestMatchers("/my/**").hasAnyRole("ADMIN", "USER")  //와일드카드는 별표시 두개
                                 .anyRequest().authenticated() //위에서 처리하지 못한 나머지 경로들을 처리하는데 .authenticated는 로그인한 사용자만 나타낸다
