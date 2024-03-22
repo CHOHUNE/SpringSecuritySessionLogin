@@ -11,7 +11,8 @@ import java.util.Collection;
 public class CustomUserDetails implements UserDetails {
 
 
-    private UserEntity userEntity;
+    private final UserEntity userEntity;
+
 
     public CustomUserDetails(UserEntity userEntity) {
         this.userEntity = userEntity;
@@ -26,6 +27,7 @@ public class CustomUserDetails implements UserDetails {
         collection.add(new GrantedAuthority() {
             @Override
             public String getAuthority() {
+
                 return userEntity.getRole();
             }
 
@@ -46,21 +48,21 @@ public class CustomUserDetails implements UserDetails {
 
     @Override
     public boolean isAccountNonExpired() {
-        return false;
+        return true;
     }
 
     @Override
     public boolean isAccountNonLocked() {
-        return false;
+        return true;
     }
 
     @Override
     public boolean isCredentialsNonExpired() {
-        return false;
+        return true;
     }
 
     @Override
     public boolean isEnabled() {
-        return false;
+        return true;
     }
 }

@@ -4,6 +4,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 
@@ -35,15 +36,17 @@ public class SecurityConfig {
         // 특정 경로에 대해 허용하거나 거부 하는 메서드 : 신버전 부터는 반드시 람다식으로 작성 해야 한다.
 
         http
-                .formLogin((auth) -> auth.loginPage("/login") //역할 : 로그인 페이지를 지정해주는 역할
-                        .loginProcessingUrl("/loginProc")//역할 : 로그인 처리를 하는 URL을 지정해주는 역
+                .formLogin((auth) -> auth.
+                        loginPage("/login") //역할 : 로그인 페이지를 지정해주는 역할
+                        .loginProcessingUrl("/loginProc")
+                        .defaultSuccessUrl("/main")//역할 : 로그인 처리를 하는 URL을 지정해주는 역
                         .permitAll()
                 );
 
         // 사이트 위변조 방지 설정이 자동으로 설정 되어 있어 로그인 할때 반드시 이 csrf 관련 토큰도 전송 해주어야 한다.
         // 일시적으로 disable() 해놓고 추후에 추가 예정
         http
-                .csrf((auth) -> auth.disable());
+                .csrf(AbstractHttpConfigurer::disable);
 
 
         return http.build();

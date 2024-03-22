@@ -3,11 +3,7 @@ package com.example.demo.service;
 import com.example.demo.dto.JoinDto;
 import com.example.demo.entity.UserEntity;
 import com.example.demo.repository.UserRepository;
-import lombok.AllArgsConstructor;
-import lombok.NoArgsConstructor;
-import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -28,7 +24,7 @@ public class JoinService {
 
 
 
-        //db 에 이미 동일한 username을 가진 회원이 존재 하는지 확인한 후에 이후 로직 진행 해야함
+        //db 에 이미 동일한 username 을 가진 회원이 존재 하는지 확인한 후에 이후 로직 진행 해야함
         boolean isUser = userRepository.existsByUsername(joinDto.getUsername());
         if (isUser) {
             return ;
