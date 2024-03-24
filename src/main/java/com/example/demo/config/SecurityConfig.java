@@ -2,6 +2,8 @@ package com.example.demo.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.security.access.hierarchicalroles.RoleHierarchy;
+import org.springframework.security.access.hierarchicalroles.RoleHierarchyImpl;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
@@ -11,6 +13,8 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.provisioning.InMemoryUserDetailsManager;
 import org.springframework.security.web.SecurityFilterChain;
+
+import java.awt.event.HierarchyBoundsAdapter;
 
 @Configuration // 이 클래스는 스프링 부트에게 컨피규레이션 클래스로 등록이 된다.
 @EnableWebSecurity // 이 클래스가 스프링 시큐리티에서도 관리가 된다.
@@ -25,19 +29,29 @@ public class SecurityConfig {
         return new BCryptPasswordEncoder();
     } //암호화를 진행할 메서드
 
+    @Bean
+    public RoleHierarchy roleHierarchy() {
+
+        RoleHierarchyImpl hierarchy = new RoleHierarchyImpl();
+
+        hierarchy.setHierarchy("ROLE_ADMIN > ROLE_MANAGER\n" + "ROLE_MANAGER > ROLE_USER");
+
+        return hierarchy;
+    }
+
+    // 이렇게 계층 권한 메서드를 한 번 등록 해주면 A권한이 제일 낮은데, A 권한에 더 높은 권한인 B C 가 자동으로 접근 가능하게 된다.
+
 
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-
-
-
-
         http
                 .authorizeHttpRequests((auth) -> auth
-                        .requestMatchers("/", "/login", "/join", "/joinProc").permitAll()
+                        .requestMatchers( "/login", "/join", "/joinProc").permitAll()
+                        .requestMatchers("/").hasAnyRole("USER")
+                        .requestMatchers("/manager").hasAnyRole("MANAGER")
                         .requestMatchers("/admin").hasRole("ADMIN")
-                        .requestMatchers("/my/**").hasAnyRole("ADMIN", "USER")  //와일드카드는 별표시 두개
+                        //.requestMatchers("/my/**").hasAnyRole("ADMIN", "USER")  //와일드카드는 별표시 두개
                         .anyRequest().authenticated() //위에서 처리하지 못한 나머지 경로들을 처리하는데 .authenticated는 로그인한 사용자만 나타낸다
                 )
                 .formLogin((auth) -> auth.
