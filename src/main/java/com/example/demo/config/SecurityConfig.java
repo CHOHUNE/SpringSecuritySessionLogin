@@ -4,7 +4,6 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
-import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
@@ -28,6 +27,10 @@ public class SecurityConfig {
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
 
         http
+                .logout((auth) -> auth.logoutUrl("/logout")
+                        .logoutSuccessUrl("/"));
+
+        http
                 .authorizeHttpRequests((auth) -> auth
                         .requestMatchers("/", "/login", "/join", "/joinProc").permitAll()
                         .requestMatchers("/admin").hasRole("ADMIN")
@@ -39,7 +42,15 @@ public class SecurityConfig {
                         .loginProcessingUrl("/loginProc")
                         .defaultSuccessUrl("/main")//역할 : 로그인 처리를 하는 URL을 지정해주는 역
                         .permitAll()
-                ).csrf((auth) -> auth.disable())
+                )
+//                .csrf((auth) -> auth.disable())
+                //crsf는 요청을 위조하여 사용자가 원하지 않아도 서버측으로 특정 요청을 강제로 보내는 방식이다.
+                // 회원정보 변경, CURD를 사용자 모르게 요청
+                // 개발환경에서는 Security Config 클래스를 통해 disable 하였는데 배포환경에서는
+                // crsf 공격 방지를 위해 추가적인 설정을 해보도록 하자
+                // disable 없앨 시에 POST PUT DELETE 요청에 대해 토큰 검증을 한다.
+
+
                 .sessionManagement(
                         (auth) ->
                                 auth

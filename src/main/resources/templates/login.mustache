@@ -14,6 +14,8 @@
     <form action="/loginProc" method="post" name="loginForm">
         <input id="username" type="text" name="username" placeholder="id"/>
         <input id="password" type="password" name="password" placeholder="password"/>
+        <input type="hidden" name="_csrf" value="{{_csrf.token}}"/>
+<!--  csrf을 enable 했으니  csrf 토큰을 받아서 서버측으로 전달해주는 추가적인 과정이 이 부분에 필요함 -->
         <input type="submit" value="login"/>
     </form>
 
