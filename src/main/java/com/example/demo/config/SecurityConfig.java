@@ -5,6 +5,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
+import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 
@@ -28,25 +29,31 @@ public class SecurityConfig {
 
         http
                 .authorizeHttpRequests((auth) -> auth
-                                .requestMatchers("/", "/login", "/join", "/joinProc").permitAll()
-                                .requestMatchers("/admin").hasRole("ADMIN")
-                                .requestMatchers("/my/**").hasAnyRole("ADMIN", "USER")  //와일드카드는 별표시 두개
-                                .anyRequest().authenticated() //위에서 처리하지 못한 나머지 경로들을 처리하는데 .authenticated는 로그인한 사용자만 나타낸다
-                );
-        // 특정 경로에 대해 허용하거나 거부 하는 메서드 : 신버전 부터는 반드시 람다식으로 작성 해야 한다.
-
-        http
+                        .requestMatchers("/", "/login", "/join", "/joinProc").permitAll()
+                        .requestMatchers("/admin").hasRole("ADMIN")
+                        .requestMatchers("/my/**").hasAnyRole("ADMIN", "USER")  //와일드카드는 별표시 두개
+                        .anyRequest().authenticated() //위에서 처리하지 못한 나머지 경로들을 처리하는데 .authenticated는 로그인한 사용자만 나타낸다
+                )
                 .formLogin((auth) -> auth.
                         loginPage("/login") //역할 : 로그인 페이지를 지정해주는 역할
                         .loginProcessingUrl("/loginProc")
                         .defaultSuccessUrl("/main")//역할 : 로그인 처리를 하는 URL을 지정해주는 역
                         .permitAll()
-                );
+                ).csrf((auth) -> auth.disable())
+                .sessionManagement(
+                        (auth) ->
+                                auth
+                                        .sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED)
+                                        .sessionFixation((sessionFixation)->sessionFixation.newSession())
+                                        //세션 고정 공격 방지
+                                        //세션 고정 공격 : 세션 고정 공격은 공격자가 세션 ID를 얻어서 사용자에게 이 ID를 사용하도록 유도하는 공격 방법이다.
+                                        //이후 사용자가 로그인을 하면 이전에 공격자가 얻은 세션 ID를 사용하여 세션을 탈취하는 공격이다.
+                                        //세션 고정 공격을 방지하기 위해서는 사용자가 로그인을 할 때마다 새로운 세션 ID를 발급해야 한다.
+                                        //이것을 세션 고정 공격 방지라고 한다.
+                                        .maximumSessions(1)
+                                        .maxSessionsPreventsLogin(true)  // 중복 로그인  (true : 로그인 차단) , (false : 초과시 기존 세션 하나 삭제 )
 
-        // 사이트 위변조 방지 설정이 자동으로 설정 되어 있어 로그인 할때 반드시 이 csrf 관련 토큰도 전송 해주어야 한다.
-        // 일시적으로 disable() 해놓고 추후에 추가 예정
-        http
-                .csrf(AbstractHttpConfigurer::disable);
+                );
 
 
         return http.build();
