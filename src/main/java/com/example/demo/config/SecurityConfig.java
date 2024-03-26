@@ -23,10 +23,10 @@ public class SecurityConfig {
     //기본 설정을  커스텀 하여 진행할 수 있다.
 
 
-    @Bean
+    @Bean //빈으로 등록하는 이유 : 이 메서드를 호출할 때마다 새로운 객체를 생성하는 것이 아니라 한 번 생성한 객체를 사용하게 된다.
     public BCryptPasswordEncoder bCryptPasswordEncoder() {
 
-        return new BCryptPasswordEncoder();
+        return new BCryptPasswordEncoder(); //해당 메서드의 역할 : 암호화를 진행할 객체를 생성하는 역할
     } //암호화를 진행할 메서드
 
     @Bean
